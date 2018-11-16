@@ -75,8 +75,23 @@ body {
     animation-duration: 0.4s
 }
 
+.modal-backdrop {
+    z-index: -1;
+}
+
 /* Add Animation */
 @keyframes animatetop {
     from {top: -300px; opacity: 0}
     to {top: 0; opacity: 1}
-} 
+}
+
+.node {
+    fill: steelblue;
+    stroke: none;
+}
+  
+.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1px;
+}

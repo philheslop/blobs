@@ -2,34 +2,23 @@
 <head>
   <meta charset="utf-8">
   <script src="https://d3js.org/d3.v5.min.js"></script>
+
+   <!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
+
   <link rel="stylesheet" href="blob.css">
 </head>
 
 <body>
-	
 	<!-- Trigger/Open The Modal -->
-	<button id="myBtn">Open Modal</button>
+	<button id="myBtn" onclick="showModal()">Open Modal</button>
 
-	<!-- The Modal -->
-	<div id="myModal" class="modal">
-
-		<!-- Modal content -->
-		<div class="modal-content">
-			<div class="modal-header">
-				<span class="close">&times;</span>
-				<h2>Modal Header</h2>
-			</div>
-			<div class="modal-body">
-				<p>Some text in the Modal Body</p>
-				<p>Some other text...</p>
-			</div>
-			<div class="modal-footer">
-				<h3>Modal Footer</h3>
-			</div>
-		</div>
-	</div>
-
-	<script src="modal.js"></script>
-	<script src="blob.js"></script>
-
+	<script src="blobTree.js"></script>
+	<script src="bsModal.js"></script>
 </body>

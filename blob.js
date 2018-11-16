@@ -2,7 +2,7 @@
 var w = 900;
 var h = 450;
 
-var dataset = [{'label':'car','history':[]}];
+var dataset = [{'label':'car','history':[],'depth':0}];
 var lastDataIndexClicked = 0;
 
 var xScale = d3.scaleBand()
@@ -38,7 +38,7 @@ svg.selectAll("circle")
    .attr("fill", function(d) {
         return "rgb(0, 0, " + Math.round(d * 10) + ")";
    })
-   .on('click', clicked);
+   .on('click', blobClick);
 
 //Create labels
 svg.selectAll("text.label")
@@ -60,7 +60,7 @@ svg.selectAll("text.label")
    .attr("font-size", "11px")
    .attr("fill", "white");
 
-function clicked(d,i) {
+function createNewBlob(d,i) {
     //Add one new value to dataset
     lastDataIndexClicked = i;
     let newData = {};
@@ -70,6 +70,7 @@ function clicked(d,i) {
 
     newData.label = newLabel;
     newData.history = newDataHistory;
+    newData.depth = d.depth + 1;
 
     dataset.push(newData);		 			 	//Add new data to array
     
@@ -78,6 +79,14 @@ function clicked(d,i) {
     //Update scale domains
     xScale.domain(d3.range(dataset.length));	//Recalibrate the x scale domain, given the new length of dataset
     yScale.domain([0, d3.max(dataset)]);		//Recalibrate the y scale domain, given the new max value in dataset
+}
+
+function blobClick(d,i) {
+
+    showBlobModal(d);
+
+    createNewBlob(d,i);
+    
 
     //Select…
     var blobs = svg.selectAll("circle")			//Select all blobs
@@ -88,11 +97,13 @@ function clicked(d,i) {
         .append("circle")	//Creates a new circle
         .attr("cx", w)		//Initial x position of the circle beyond the right edge of SVG
         .attr("cy", function(d) {	//Sets the y value, based on the updated yScale
-            return h / 2;// - yScale(d);
+            let y = h/2 + d.depth * 2 * xScale.bandwidth();// - yScale(d);
+            console.log(y);
+            return y;
         })
         .attr("r", xScale.bandwidth())	//Sets the width value, based on the updated xScale
         .attr("fill", function(d) {	return "rgb(0, 0, " + Math.round(i * 10) + ")";	})
-        .on('click',clicked)
+        .on('click',blobClick)
         .merge(blobs)							//Merges the enter selection with the update selection
         .transition()							//Initiate a transition on all elements in the update selection (all circles)
         .duration(500)
@@ -100,7 +111,9 @@ function clicked(d,i) {
             return xScale(i);
         })
         .attr("cy", function(d) {				//Set new y position, based on the updated yScale
-            return h/2;// - yScale(d);
+            let y = h/2 + d.depth * 2 * xScale.bandwidth();// - yScale(d);
+            console.log(y);
+            return y;
         })
         .attr("r", xScale.bandwidth())	;	//Set new width value, based on the updated xScale
         //.attr("height", function(d) {			//Set new height value, based on the updated yScale
@@ -119,7 +132,10 @@ function clicked(d,i) {
         .attr("font-size", "11px")
         .attr("fill", function(d) {	return 'white';	})
         .attr("x", function(d, i) {	return w/2 + xScale.bandwidth() / 2; })
-        .attr("y", function(d) { return h / 2; }) //if (d < 0.07 * maxValue){	return h - yScale(d) - 7	} //else {	return h - yScale(d) + 14;	}
+        .attr("y", function(d) {
+            let y = h/2 + d.depth * 2 * xScale.bandwidth();// - yScale(d);
+            console.log(y);
+            return y; }) //if (d < 0.07 * maxValue){	return h - yScale(d) - 7	} //else {	return h - yScale(d) + 14;	}
     .merge(labels)
     .transition()
     .duration(500)
