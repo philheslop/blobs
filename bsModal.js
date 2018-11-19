@@ -3,6 +3,26 @@ var BstrapModal = function (title, body, buttons) {
     body = body || "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",
     buttons = buttons || [{ Value: "CLOSE", Css: "btn-primary", Callback: function (event) { BstrapModal.Close(); } }];
 
+    if(currentBlob) {
+
+        title += "<button type='button' class='btn' name='editBtn' onclick='currentBlobAddChild()'>+</button>"
+        body = "<ul name='currentBlobChildList'></ul>"
+
+        if(currentBlob.children && currentBlob.children.length > 0) {
+            body = "<ul name='currentBlobChildList'>";
+            for(var i = 0; i < currentBlob.children.length; ++ i) {
+                var child = currentBlob.children[i];
+                //var warning = "";
+                //if(child.children && child.children.length > 0) warning = "!";
+                body += "<li><span name='currentBlobChild'>"
+                + child.name
+                + "</span><button type='button' class='btn' name='editBtn' onclick='changeCurrentBlobChild("+i+")'>Edit</button><button type='button' class='btn' name='deleteBtn' onclick='deleteCurrentBlobChild("+i+")'>Delete</button></li>";
+                console.log(body);
+            }
+            body += "</ul>";
+        }
+    }
+
     var GetModalStructure = function () {
         var that = this;
         that.Id = BstrapModal.Id = Math.random();
@@ -31,26 +51,67 @@ var BstrapModal = function (title, body, buttons) {
     };
     BstrapModal.Close = function () {
         $(document.getElementById(BstrapModal.Id)).modal('hide');
+        update();
+        currentBlob = null;
         BstrapModal.Delete();
     };    
     this.Show = function () {
         BstrapModal.Delete();
         document.body.appendChild($(GetModalStructure)[0]);
-        var temp = $(GetModalStructure)[0];
-        console.log(temp);
+        var modalStructure = $(GetModalStructure)[0];
+        console.log(modalStructure);
         //$(GetModalStructure)[0].appendTo("body");
         var btns = document.querySelectorAll("button[name='btn" + BstrapModal.Id + "']");
         for (var i = 0; i < btns.length; i++) {
             btns[i].addEventListener("click", buttons[i].Callback || BstrapModal.Close);
         }
+
         $(document.getElementById(BstrapModal.Id)).modal('show');
     };
 };
 
 function showModal() {
     new BstrapModal().Show();
+    var btns = document.querySelectorAll("button[name='btn" + BstrapModal.Id + "']");
 }
 
-function showBlobModal(blob) {
-    new BstrapModal(blob.label,blob.history).Show();
+function showBlobModal() {
+    if(currentBlob)
+        new BstrapModal(currentBlob.name,currentBlob.children).Show();
+}
+
+function changeCurrentBlobChild(index)
+{
+    console.log('changing current blob child: ' + index);
+    console.log(currentBlob);
+    if(currentBlob && currentBlob.children && currentBlob.children.length > index) {
+        var newName = changeBlobName(currentBlob.children[index]);
+        var listItems = document.getElementsByName('currentBlobChild');
+        console.log(listItems);
+        listItems[index].innerText = newName;
+    }
+}
+
+function currentBlobAddChild() {
+    if(currentBlob) {
+        var i = 0;
+        if(currentBlob.children) i = currentBlob.children.length;
+        var child = addChild(currentBlob,"");
+        var ul = document.getElementsByName('currentBlobChildList')[0];
+        var li = document.createElement("li");
+        li.innerHTML = "<span name='currentBlobChild'>" + child.name + "</span><button type='button' class='btn' name='editBtn' onclick='changeCurrentBlobChild("+i+")'>Edit</button>"
+        ul.appendChild(li);
+        changeCurrentBlobChild(i);
+    }
+}
+
+function deleteCurrentBlobChild(index) {
+    console.log('deleting current blob child: ' + index);
+    console.log(currentBlob);
+    if(currentBlob && currentBlob.children && currentBlob.children.length > index) {
+        var child = currentBlob.children[index];
+        removeChild(currentBlob,child);
+        var ul = document.getElementsByName('currentBlobChildList')[0];
+        ul.removeChild(ul.children[index])
+    } 
 }
