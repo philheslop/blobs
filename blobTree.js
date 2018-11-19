@@ -35,14 +35,15 @@ var newD = {"name": rootNode.name + " *","parent": rootNode};
 
 function update() {
 
-    let radius = 10;
-    
+    let radius = 10;    
     var root = d3.hierarchy(rootNode);
+    let duration = 1000;
+
     d3.selectAll('text.nodeLabel').remove();
     d3.select('svg g.nodes').selectAll('circle.node').remove();
     d3.select('svg g.links').selectAll('line.link').remove();
 
-    console.log(root.descendants());
+    //console.log(root.descendants());
     if(treeMode) treeLayout(root)
     else clusterLayout(root);
 
@@ -55,10 +56,15 @@ function update() {
     //.merge(d3.selectAll('circle.node'))
     .append('circle')
         .classed('node', true)
+        .classed('leaf', function(d) {return d.data.children ? false : true})
+        .attr('cx', function(d) { return d.parent ? d.parent.x : d.x;})
+        .attr('cy', function(d) { return d.parent ? d.parent.y : 0;})
+        .attr('r', function(d) { return d.data.children ? radius : radius * 1.1})
+        .on('click',blobClick)
+        .transition()
+        .duration(duration)
         .attr('cx', function(d) {return d.x;})
         .attr('cy', function(d) {return d.y + radius;})
-        .attr('r', 10)
-        .on('click',blobClick);
 
     nodes.exit().remove();
 
@@ -72,11 +78,15 @@ function update() {
     .append("text")
         .classed('nodeLabel', true)
         .attr("x", function(d) { return d.x })
-        .attr("y", function(d) { return d.data.children ? d.y : d.y + 3 * radius })
+        .attr("y", function(d) { return 0 } )
         .attr("dy", ".35em")
         .text(function(d) { return d.data.name; })
         .style("fill-opacity", 1)
-        .style("text-anchor", "middle");
+        .style("text-anchor", function(d) { return d.data.children ? "right": "middle"})
+        .transition()
+        .duration(duration)
+        .attr("x", function(d) { return d.data.children ? d.x + radius : d.x })
+        .attr('y', function(d) { return d.data.children ? d.y + radius : d.y + 3 * radius; })
 
     nodeLabels.exit().remove();
 
@@ -89,10 +99,18 @@ function update() {
     //.merge(d3.selectAll('line.link'))
     .append('line')
     .classed('link', true)
+    .attr('x1', function(d) {return w/2;})
+    .attr('y1', function(d) {return h/2;})
+    .attr('x2', function(d) {return w/2;})
+    .attr('y2', function(d) {return h/2;})
+    .transition()
+    .duration(duration / 2)
     .attr('x1', function(d) {return d.source.x;})
     .attr('y1', function(d) {return d.source.y + radius;})
     .attr('x2', function(d) {return d.target.x;})
-    .attr('y2', function(d) {return d.target.y + radius;});
+    .attr('y2', function(d) {return d.target.y + radius;})
+    
+    
 
     links.exit().remove();
 }

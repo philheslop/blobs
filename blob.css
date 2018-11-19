@@ -88,10 +88,29 @@ body {
 .node {
     fill: steelblue;
     stroke: none;
+    cursor: pointer;
+}
+
+.leaf {
+    fill: lightcoral;
+    stroke-width: 2px;
+    stroke: black;
 }
   
 .link {
     fill: none;
     stroke: #ccc;
-    stroke-width: 1px;
+    stroke-width: 2px;
+}
+
+li {
+    line-height: 2.5em;
+}
+
+.rightButtons {
+    float: right;
+}
+
+.clear {
+    clear: both;
 }

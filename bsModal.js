@@ -5,7 +5,7 @@ var BstrapModal = function (title, body, buttons) {
 
     if(currentBlob) {
 
-        title += "<button type='button' class='btn' name='editBtn' onclick='currentBlobAddChild()'>+</button>"
+        title += "&emsp;<button type='button' class='btn btn-primary' name='addChildBtn' onclick='currentBlobAddChild()'>+</button>"
         body = "<ul name='currentBlobChildList'></ul>"
 
         if(currentBlob.children && currentBlob.children.length > 0) {
@@ -16,7 +16,7 @@ var BstrapModal = function (title, body, buttons) {
                 //if(child.children && child.children.length > 0) warning = "!";
                 body += "<li><span name='currentBlobChild'>"
                 + child.name
-                + "</span><button type='button' class='btn' name='editBtn' onclick='changeCurrentBlobChild("+i+")'>Edit</button><button type='button' class='btn' name='deleteBtn' onclick='deleteCurrentBlobChild("+i+")'>Delete</button></li>";
+                + "</span><span class='rightButtons'><button type='button' class='btn btn-secondary btn-sm' name='editBtn' onclick='changeCurrentBlobChild("+i+")'>Edit</button><button type='button' class='btn btn-secondary btn-sm' name='deleteBtn' onclick='deleteCurrentBlobChild("+i+")'>Delete</button></span><span class='clear'></span></li>";
                 console.log(body);
             }
             body += "</ul>";
@@ -99,7 +99,9 @@ function currentBlobAddChild() {
         var child = addChild(currentBlob,"");
         var ul = document.getElementsByName('currentBlobChildList')[0];
         var li = document.createElement("li");
-        li.innerHTML = "<span name='currentBlobChild'>" + child.name + "</span><button type='button' class='btn' name='editBtn' onclick='changeCurrentBlobChild("+i+")'>Edit</button>"
+        li.innerHTML = "<span name='currentBlobChild'>"
+        + child.name
+        + "</span><span class='rightButtons'><button type='button' class='btn btn-secondary btn-sm' name='editBtn' onclick='changeCurrentBlobChild("+i+")'>Edit</button><button type='button' class='btn btn-secondary btn-sm' name='deleteBtn' onclick='deleteCurrentBlobChild("+i+")'>Delete</button></span><span class='clear'></span>"
         ul.appendChild(li);
         changeCurrentBlobChild(i);
     }
