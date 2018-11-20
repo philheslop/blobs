@@ -1,3 +1,5 @@
+// Adapted from: https://www.codeproject.com/Articles/1041128/Dynamically-Creating-and-Showing-Bootstrap-Modal
+
 var BstrapModal = function (title, body, buttons) {
     var title = title || "Lorem Ipsum History",
     body = body || "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",
@@ -16,8 +18,8 @@ var BstrapModal = function (title, body, buttons) {
                 //if(child.children && child.children.length > 0) warning = "!";
                 body += "<li><span name='currentBlobChild'>"
                 + child.name
-                + "</span><span class='rightButtons'><button type='button' class='btn btn-secondary btn-sm' name='editBtn' onclick='changeCurrentBlobChild("+i+")'>Edit</button><button type='button' class='btn btn-secondary btn-sm' name='deleteBtn' onclick='deleteCurrentBlobChild("+i+")'>Delete</button></span><span class='clear'></span></li>";
-                console.log(body);
+                + "</span><span class='rightButtons'><button type='button' class='btn btn-outline-secondary btn-sm' name='editBtn' onclick='changeCurrentBlobChild("+i+")'>Edit</button><button type='button' class='btn btn-outline-secondary btn-sm' name='deleteBtn' onclick='deleteCurrentBlobChild("+i+")'>Delete</button></span><span class='clear'></span></li>";
+                //console.log(body);
             }
             body += "</ul>";
         }
@@ -37,9 +39,9 @@ var BstrapModal = function (title, body, buttons) {
             + that.Id
             + "' tabindex='1' role='dialog' data-backdrop='static' data-keyboard='false' aria-labelledby='"
             + that.Id
-            + "Label'><div class='modal-dialog'> <div class='modal-content'><div class='modal-header'> <button type='button' class='close modal-white-close' onclick='BstrapModal.Close()'><span aria-hidden='true'>&times; </span></button><h4 class='modal-title'>"
-            + title
-            + "</h4></div><div class='modal-body'> <div class='row'><div class='col-xs-12 col-md-12 col-sm-12 col-lg-12'>"
+            + "Label'><div class='modal-dialog modal-dialog-centered'> <div class='modal-content'><div class='modal-header'><h4 class='modal-title'>" + title + "</h4><button type='button' class='close modal-white-close' onclick='BstrapModal.Close()'><span aria-hidden='true'>&times; </span></button>"
+    //        + title
+            + "</div><div class='modal-body'> <div class='row'><div class='col-xs-12 col-md-12 col-sm-12 col-lg-12'>"
             + body
             + "</div></div></div><div class='modal-footer bg-default'> <div class='col-xs-12 col-sm-12 col-lg-12'>"
             + buttonshtml
@@ -59,7 +61,7 @@ var BstrapModal = function (title, body, buttons) {
         BstrapModal.Delete();
         document.body.appendChild($(GetModalStructure)[0]);
         var modalStructure = $(GetModalStructure)[0];
-        console.log(modalStructure);
+        //console.log(modalStructure);
         //$(GetModalStructure)[0].appendTo("body");
         var btns = document.querySelectorAll("button[name='btn" + BstrapModal.Id + "']");
         for (var i = 0; i < btns.length; i++) {
@@ -70,9 +72,9 @@ var BstrapModal = function (title, body, buttons) {
     };
 };
 
-function showModal() {
-    new BstrapModal().Show();
-    var btns = document.querySelectorAll("button[name='btn" + BstrapModal.Id + "']");
+function showModal(title = null,body=null) {
+    new BstrapModal().Show(title,body);
+    //var btns = document.querySelectorAll("button[name='btn" + BstrapModal.Id + "']");
 }
 
 function showBlobModal() {
@@ -82,12 +84,12 @@ function showBlobModal() {
 
 function changeCurrentBlobChild(index)
 {
-    console.log('changing current blob child: ' + index);
-    console.log(currentBlob);
+    //console.log('changing current blob child: ' + index);
+    //console.log(currentBlob);
     if(currentBlob && currentBlob.children && currentBlob.children.length > index) {
         var newName = changeBlobName(currentBlob.children[index]);
         var listItems = document.getElementsByName('currentBlobChild');
-        console.log(listItems);
+        //console.log(listItems);
         listItems[index].innerText = newName;
     }
 }
@@ -101,15 +103,15 @@ function currentBlobAddChild() {
         var li = document.createElement("li");
         li.innerHTML = "<span name='currentBlobChild'>"
         + child.name
-        + "</span><span class='rightButtons'><button type='button' class='btn btn-secondary btn-sm' name='editBtn' onclick='changeCurrentBlobChild("+i+")'>Edit</button><button type='button' class='btn btn-secondary btn-sm' name='deleteBtn' onclick='deleteCurrentBlobChild("+i+")'>Delete</button></span><span class='clear'></span>"
+        + "</span><span class='rightButtons'><button type='button' class='btn btn-outline-secondary btn-sm' name='editBtn' onclick='changeCurrentBlobChild("+i+")'>Edit</button><button type='button' class='btn btn-outline-secondary btn-sm' name='deleteBtn' onclick='deleteCurrentBlobChild("+i+")'>Delete</button></span><span class='clear'></span>"
         ul.appendChild(li);
         changeCurrentBlobChild(i);
     }
 }
 
 function deleteCurrentBlobChild(index) {
-    console.log('deleting current blob child: ' + index);
-    console.log(currentBlob);
+    //console.log('deleting current blob child: ' + index);
+    //console.log(currentBlob);
     if(currentBlob && currentBlob.children && currentBlob.children.length > index) {
         var child = currentBlob.children[index];
         removeChild(currentBlob,child);

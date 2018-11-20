@@ -85,6 +85,10 @@ body {
     to {top: 0; opacity: 1}
 }
 
+svg {
+    background-color: lightgoldenrodyellow;
+}
+
 .node {
     fill: steelblue;
     stroke: none;

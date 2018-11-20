@@ -1,6 +1,6 @@
 //Width and height
-var w = 900;
-var h = 450;
+var w = 1000;
+var h = 600;
 
 var currentBlob = null;
 
@@ -11,108 +11,120 @@ function toggleTree() {
     update();
 }
 
-var rootNode = {"name": "A1","children": [{"name": "A2","children":[{"name":"B3"}]}]};
-var data = [rootNode];
+//var rootNode = {"name": "A1","children": [{"name": "A2","children":[{"name":"B3"}]}]};
+var rootNode = null;
+//rootNode = {"name": "newTopicName" };
+var data = [];
 
 //Create SVG element
-var svg = d3.select("body")
-            .append("svg")
-            .attr("width", w)
-            .attr("height", h);
+var svg = null;
 
-var linksGroup = svg.append("g").attr("class", "links");
-var nodesGroup = svg.append("g").attr("class", "nodes");
-var nodelLabelsGroup = svg.append("g").attr("class", "nodeLabels");
+
 
 var treeLayout = d3.tree().size([w - 50, h - 50])
 var clusterLayout = d3.cluster().size([w - 50, h - 50])
 
-//
-var newD = {"name": rootNode.name + " *","parent": rootNode};
-    if (rootNode.children) rootNode.children.push(newD); else rootNode.children = [newD];
-    //data.push(newD);
-//
+function initSvg() {
+    svg = d3.select("#svgContainer")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h);
+
+    d3.select("#svgContainer").attr("align", "center");
+
+    var linksGroup = svg.append("g").attr("class", "links");
+    var nodesGroup = svg.append("g").attr("class", "nodes");
+    var nodelLabelsGroup = svg.append("g").attr("class", "nodeLabels");
+}
 
 function update() {
 
-    let radius = 10;    
-    var root = d3.hierarchy(rootNode);
-    let duration = 1000;
+    if (rootNode) {
+        document.getElementsByClassName("topicDiv")[0].style.display = "none";
 
-    d3.selectAll('text.nodeLabel').remove();
-    d3.select('svg g.nodes').selectAll('circle.node').remove();
-    d3.select('svg g.links').selectAll('line.link').remove();
+        if(!svg) initSvg();
 
-    //console.log(root.descendants());
-    if(treeMode) treeLayout(root)
-    else clusterLayout(root);
+        let radius = 10;    
+        var root = d3.hierarchy(rootNode);
+        let duration = 1000;
 
-    // Nodes
-    let nodes = d3.select('svg g.nodes')
-    .selectAll('circle.node')
-    .data(root.descendants());
+        d3.selectAll('text.nodeLabel').remove();
+        d3.select('svg g.nodes').selectAll('circle.node').remove();
+        d3.select('svg g.links').selectAll('line.link').remove();
 
-    nodes.enter()
-    //.merge(d3.selectAll('circle.node'))
-    .append('circle')
-        .classed('node', true)
-        .classed('leaf', function(d) {return d.data.children ? false : true})
-        .attr('cx', function(d) { return d.parent ? d.parent.x : d.x;})
-        .attr('cy', function(d) { return d.parent ? d.parent.y : 0;})
-        .attr('r', function(d) { return d.data.children ? radius : radius * 1.1})
-        .on('click',blobClick)
+        //console.log(root.descendants());
+        if(treeMode) treeLayout(root)
+        else clusterLayout(root);
+
+        // Nodes
+        let nodes = d3.select('svg g.nodes')
+        .selectAll('circle.node')
+        .data(root.descendants());
+
+        nodes.enter()
+        //.merge(d3.selectAll('circle.node'))
+        .append('circle')
+            .classed('node', true)
+            .classed('leaf', function(d) {return d.data.children ? false : true})
+            .attr('cx', function(d) { return d.parent ? d.parent.x : d.x;})
+            .attr('cy', function(d) { return d.parent ? d.parent.y : 0;})
+            .attr('r', function(d) { return d.data.children ? radius : radius * 1.1})
+            .on('click',blobClick)
+            .transition()
+            .duration(duration)
+            .attr('cx', function(d) {return d.x;})
+            .attr('cy', function(d) {return d.y + radius * 1.1;})
+
+        nodes.exit().remove();
+
+        // Node Labels
+        let nodeLabels = d3.select('svg g.nodeLabels')
+        .selectAll('label.node')
+        .data(root.descendants());
+
+        nodeLabels.enter()
+        //.merge(d3.selectAll('label.node'))
+        .append("text")
+            .classed('nodeLabel', true)
+            .attr("x", function(d) { return d.x })
+            .attr("y", function(d) { return 0 } )
+            .attr("dy", ".35em")
+            .text(function(d) { return d.data.name; })
+            .style("fill-opacity", 1)
+            .style("text-anchor", function(d) { return d.data.children ? "right": "middle"})
+            .transition()
+            .duration(duration)
+            .attr("x", function(d) { return d.data.children ? d.x + radius : d.x })
+            .attr('y', function(d) { return d.data.children ? d.y + radius : d.y + 3 * radius; })
+
+        nodeLabels.exit().remove();
+
+        // Links
+        let links = d3.select('svg g.links')
+        .selectAll('line.link')
+        .data(root.links());
+
+        links.enter()
+        //.merge(d3.selectAll('line.link'))
+        .append('line')
+        .classed('link', true)
+        .attr('x1', function(d) {return w/2;})
+        .attr('y1', function(d) {return h/2;})
+        .attr('x2', function(d) {return w/2;})
+        .attr('y2', function(d) {return h/2;})
         .transition()
-        .duration(duration)
-        .attr('cx', function(d) {return d.x;})
-        .attr('cy', function(d) {return d.y + radius;})
-
-    nodes.exit().remove();
-
-    // Node Labels
-    let nodeLabels = d3.select('svg g.nodeLabels')
-    .selectAll('label.node')
-    .data(root.descendants());
-
-    nodeLabels.enter()
-    //.merge(d3.selectAll('label.node'))
-    .append("text")
-        .classed('nodeLabel', true)
-        .attr("x", function(d) { return d.x })
-        .attr("y", function(d) { return 0 } )
-        .attr("dy", ".35em")
-        .text(function(d) { return d.data.name; })
-        .style("fill-opacity", 1)
-        .style("text-anchor", function(d) { return d.data.children ? "right": "middle"})
-        .transition()
-        .duration(duration)
-        .attr("x", function(d) { return d.data.children ? d.x + radius : d.x })
-        .attr('y', function(d) { return d.data.children ? d.y + radius : d.y + 3 * radius; })
-
-    nodeLabels.exit().remove();
-
-    // Links
-    let links = d3.select('svg g.links')
-    .selectAll('line.link')
-    .data(root.links());
-
-    links.enter()
-    //.merge(d3.selectAll('line.link'))
-    .append('line')
-    .classed('link', true)
-    .attr('x1', function(d) {return w/2;})
-    .attr('y1', function(d) {return h/2;})
-    .attr('x2', function(d) {return w/2;})
-    .attr('y2', function(d) {return h/2;})
-    .transition()
-    .duration(duration / 2)
-    .attr('x1', function(d) {return d.source.x;})
-    .attr('y1', function(d) {return d.source.y + radius;})
-    .attr('x2', function(d) {return d.target.x;})
-    .attr('y2', function(d) {return d.target.y + radius;})
-    
-    
-
-    links.exit().remove();
+        .duration(duration / 2)
+        .attr('x1', function(d) {return d.source.x;})
+        .attr('y1', function(d) {return d.source.y + radius;})
+        .attr('x2', function(d) {return d.target.x;})
+        .attr('y2', function(d) {return d.target.y + radius;})
+        
+        links.exit().remove();
+    } else {
+        document.getElementsByClassName("topicDiv")[0].innerHTML = "<h1>No Topic</h1>";
+        document.getElementsByClassName("topicDiv")[0].style.textAlign = "center";
+        document.getElementsByClassName("topicDiv")[0].style.display = "block";
+    }
 }
 
 function blobClick(d,i) {
@@ -127,7 +139,7 @@ function addChild(parent,childName)
     if (parent.children) parent.children.push(newD);
     else parent.children = [newD];
     data.push(newD);
-    console.log(newD);
+    //console.log(newD);
     return newD;
 }
 
@@ -172,6 +184,15 @@ function updateBlob(d,updates) {
     }
 
     if(changed) update();
+}
+
+function newTopic() {
+    var newTopicName = prompt("New Topic", "Car");
+    if (newTopicName != null && newTopicName != "") {
+        rootNode = {"name": newTopicName};
+        data = [rootNode];
+        update();
+    }
 }
 
 update();
