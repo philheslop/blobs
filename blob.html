@@ -24,10 +24,12 @@
 	<div class="jumbotron jumbotron-fluid">
 		<div class="container">
 			<h1 class="display-4">Blob Components</h1>
+			<h2 class="display-5" id="userNameText"></h2>
 			<p class="lead">Sub-divide a concept/process/object into component parts and compare with others!...</p>
 			<!-- Trigger/Open The Modal -->
 			<!--<button id="myBtn" onclick="showModal()">Open Modal</button>-->
-			<button id="newTopicBtn" type="button" class="btn btn-primary btn-lg" onclick="newTopic()">New Topic</button>
+			<button id="enterNameBtn" type="button" class="btn btn-primary btn-lg" onclick="enterName()">Enter Name</button>
+			<button id="newTopicBtn" type="button" class="btn btn-primary btn-lg" onclick="newTopic()">New Topic</button>			
 			<button id="treeToggleBtn" type="button" class="btn btn-primary btn-lg" onclick="toggleTree()">Toggle Tree View</button>
 		</div>
 	</div>
@@ -37,4 +39,6 @@
 
 	<script src="blobTree.js"></script>
 	<script src="bsModal.js"></script>
+
+	<button id="submitBtn" type="button" class="btn btn-primary btn-lg" onclick="submit()">Submit</button>
 </body>

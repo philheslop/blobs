@@ -3,6 +3,7 @@ var w = 1000;
 var h = 600;
 
 var currentBlob = null;
+var userName = "Anonymous";
 
 //mode
 var treeMode = true;
@@ -18,11 +19,22 @@ var data = [];
 
 //Create SVG element
 var svg = null;
+var xScale = 1.0;
+var yScale = 0.75;
 
 
+var nodeIdCount = 0;
 
 var treeLayout = d3.tree().size([w - 50, h - 50])
 var clusterLayout = d3.cluster().size([w - 50, h - 50])
+
+function enterName() {
+    var newUserName = prompt("Enter Your Name", userName);
+    if (newUserName != null && newUserName != "") {
+        userName = newUserName;
+        update();
+    }
+}
 
 function initSvg() {
     svg = d3.select("#svgContainer")
@@ -39,6 +51,8 @@ function initSvg() {
 
 function update() {
 
+    document.getElementById("userNameText").innerText = "Hey, " + userName;
+
     if (rootNode) {
         document.getElementsByClassName("topicDiv")[0].style.display = "none";
 
@@ -47,6 +61,8 @@ function update() {
         let radius = 10;    
         var root = d3.hierarchy(rootNode);
         let duration = 1000;
+
+        //console.log(root);
 
         d3.selectAll('text.nodeLabel').remove();
         d3.select('svg g.nodes').selectAll('circle.node').remove();
@@ -66,14 +82,14 @@ function update() {
         .append('circle')
             .classed('node', true)
             .classed('leaf', function(d) {return d.data.children ? false : true})
-            .attr('cx', function(d) { return d.parent ? d.parent.x : d.x;})
-            .attr('cy', function(d) { return d.parent ? d.parent.y : 0;})
+            .attr('cx', function(d) { return d.parent ? d.parent.x * xScale : d.x * xScale;})
+            .attr('cy', function(d) { return d.parent ? d.parent.y * yScale: 0;})
             .attr('r', function(d) { return d.data.children ? radius : radius * 1.1})
             .on('click',blobClick)
             .transition()
             .duration(duration)
-            .attr('cx', function(d) {return d.x;})
-            .attr('cy', function(d) {return d.y + radius * 1.1;})
+            .attr('cx', function(d) {return d.x * xScale;})
+            .attr('cy', function(d) {return d.y * yScale + radius * 1.5 + radius * 1.5 * nodeGetSiblingIndex(d);})
 
         nodes.exit().remove();
 
@@ -86,7 +102,7 @@ function update() {
         //.merge(d3.selectAll('label.node'))
         .append("text")
             .classed('nodeLabel', true)
-            .attr("x", function(d) { return d.x })
+            .attr("x", function(d) { return d.x * xScale})
             .attr("y", function(d) { return 0 } )
             .attr("dy", ".35em")
             .text(function(d) { return d.data.name; })
@@ -94,8 +110,8 @@ function update() {
             .style("text-anchor", function(d) { return d.data.children ? "right": "middle"})
             .transition()
             .duration(duration)
-            .attr("x", function(d) { return d.data.children ? d.x + radius : d.x })
-            .attr('y', function(d) { return d.data.children ? d.y + radius : d.y + 3 * radius; })
+            .attr("x", function(d) { return d.data.children ? d.x * xScale + radius : d.x * xScale; })
+            .attr('y', function(d) { return d.data.children ? d.y * yScale + radius * 1.5 : d.y * yScale + 3.5 * radius + radius * 1.5 * nodeGetSiblingIndex(d); })
 
         nodeLabels.exit().remove();
 
@@ -114,10 +130,10 @@ function update() {
         .attr('y2', function(d) {return h/2;})
         .transition()
         .duration(duration / 2)
-        .attr('x1', function(d) {return d.source.x;})
-        .attr('y1', function(d) {return d.source.y + radius;})
-        .attr('x2', function(d) {return d.target.x;})
-        .attr('y2', function(d) {return d.target.y + radius;})
+        .attr('x1', function(d) {return d.source.x * xScale;})
+        .attr('y1', function(d) {return d.source.y * yScale + radius;})
+        .attr('x2', function(d) {return d.target.x * xScale;})
+        .attr('y2', function(d) {return d.target.y * yScale + radius + radius * 1.5 * nodeGetSiblingIndex(d.target);})
         
         links.exit().remove();
     } else {
@@ -135,7 +151,8 @@ function blobClick(d,i) {
 function addChild(parent,childName)
 {
     console.log('adding child:')
-    var newD = {"name": childName,"parent": parent};
+    var newD = {"name": childName,"parentID": parent.id, "id": nodeIdCount};
+    nodeIdCount++;
     if (parent.children) parent.children.push(newD);
     else parent.children = [newD];
     data.push(newD);
@@ -158,41 +175,53 @@ function changeBlobName(blob)
     return blob.name;
 }
 
-function updateBlob(d,updates) {
-    let parent = d.data;
-    let changed = false;
-
-    if (parent.children && parent.children.length > 0) {
-        // children with name changes
-        if (updates.changedChildren.length > 0)
-        {
-            for (var i = 0; i < updates.changedChildren.length; ++i) {
-                let index = updates.changedChildren[i].index;
-                let newName = updates.changedChildren[i].name;
-                if(parent.children.length < index) {
-                    parent.children[index].name = newName;
-                    changed = true;
-                }
+function nodeGetSiblingIndex(node)
+{
+    console.log("node");
+    console.log(node);
+    let parent = node.parent;
+    if(parent) {
+        console.log("parent");
+        console.log(parent);
+        for(var i = 0; i < parent.children.length; ++i) {
+            let element = parent.children[i];
+            if (node === element) {
+                return i;
             }
-        }
+        };
     }
-
-    // new Children to be added
-    if ( updates.newChildren.length > 0) {
-        for (var i = 0; i < updates.newChildren.length; ++ i) addChild(parent,updates.newChildren[i]);
-        changed = true;
-    }
-
-    if(changed) update();
+    return 0;
 }
 
 function newTopic() {
     var newTopicName = prompt("New Topic", "Car");
     if (newTopicName != null && newTopicName != "") {
-        rootNode = {"name": newTopicName};
+        rootNode = {"name": newTopicName, "id": nodeIdCount};
+        nodeIdCount++;
         data = [rootNode];
         update();
     }
+}
+
+function submit() {
+    var xhr = new XMLHttpRequest();
+    var url = "http://10.68.33.65:3000/treelogs";
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("accept", "application/json");
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 /*&& xhr.status === 200*/) {
+            var json = JSON.parse(xhr.responseText);
+            console.log("Response:")
+            console.log(json);
+        }
+    };
+
+    var dataObj = {"userName": "ted", "userId": "flappy", "topic": rootNode.name, "action": "test", "tree": rootNode};
+    var data = JSON.stringify(dataObj);
+
+    console.log(data);
+    xhr.send(data);
 }
 
 update();
