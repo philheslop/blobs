@@ -20,7 +20,7 @@ var data = [];
 //Create SVG element
 var svg = null;
 var xScale = 1.0;
-var yScale = 0.75;
+var yScale = 0.8;
 
 
 var nodeIdCount = 0;
@@ -89,7 +89,7 @@ function update() {
             .transition()
             .duration(duration)
             .attr('cx', function(d) {return d.x * xScale;})
-            .attr('cy', function(d) {return d.y * yScale + radius * 1.5 + radius * 1.5 * nodeGetSiblingIndex(d);})
+            .attr('cy', function(d) {return d.y * yScale + radius * 1.5 + radius * 10 * nodeGetSiblingIndex(d);})
 
         nodes.exit().remove();
 
@@ -111,7 +111,7 @@ function update() {
             .transition()
             .duration(duration)
             .attr("x", function(d) { return d.data.children ? d.x * xScale + radius : d.x * xScale; })
-            .attr('y', function(d) { return d.data.children ? d.y * yScale + radius * 1.5 : d.y * yScale + 3.5 * radius + radius * 1.5 * nodeGetSiblingIndex(d); })
+            .attr('y', function(d) { return d.data.children ? d.y * yScale + radius * 1.5 : d.y * yScale + 3.5 * radius; })
 
         nodeLabels.exit().remove();
 
@@ -133,7 +133,7 @@ function update() {
         .attr('x1', function(d) {return d.source.x * xScale;})
         .attr('y1', function(d) {return d.source.y * yScale + radius;})
         .attr('x2', function(d) {return d.target.x * xScale;})
-        .attr('y2', function(d) {return d.target.y * yScale + radius + radius * 1.5 * nodeGetSiblingIndex(d.target);})
+        .attr('y2', function(d) {return d.target.y * yScale + radius;})
         
         links.exit().remove();
     } else {
